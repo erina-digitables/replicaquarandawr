@@ -10,7 +10,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const today = userToday(user);
   return (
     <div className="mx-auto flex w-full max-w-(--container-column) flex-col gap-4 px-4 py-4 sm:py-6">
-      <Chrome email={user.email || "Sample account"} streak={streak(days, today)} atRisk={streakAtRisk(days, today)} />
+      <Chrome email={user.isDemo || !user.email ? "Sample account" : user.email} streak={streak(days, today)} atRisk={streakAtRisk(days, today)} />
       <main id="main" className="flex flex-col gap-4">
         {children}
       </main>

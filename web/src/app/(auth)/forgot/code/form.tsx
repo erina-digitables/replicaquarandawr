@@ -58,7 +58,8 @@ export function CodeForm({ knowsWho, devBackend }: { knowsWho: boolean; devBacke
           variant="code"
           inputMode="numeric"
           autoComplete="one-time-code"
-          maxLength={6}
+          // Room for a pasted "123 456"; the server strips spaces (BUG-003).
+          maxLength={9}
           placeholder="000000"
           required
           defaultValue={state?.values?.code}

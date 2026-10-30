@@ -21,6 +21,10 @@ async function clientIp() {
   return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "local";
 }
 
+/**
+ * Limits per subject (an account or address) and per network at 4x. Never key on a
+ * constant: a shared bucket lets a few visitors lock everyone else out (BUG-001).
+ */
 async function allowed(kind: string, subject: string, max: number, windowSeconds: number) {
   const ip = await clientIp();
   const [bySubject, byIp] = await Promise.all([
@@ -28,6 +32,11 @@ async function allowed(kind: string, subject: string, max: number, windowSeconds
     backend.rateLimit(`${kind}:ip:${ip}`, max * 4, windowSeconds),
   ]);
   return bySubject && byIp;
+}
+
+/** Per network only, for actions with no subject (sample accounts). */
+async function allowedFromHere(kind: string, max: number, windowSeconds: number) {
+  return backend.rateLimit(`${kind}:ip:${await clientIp()}`, max, windowSeconds);
 }
 
 export async function signIn(_: FormState, form: FormData): Promise<FormState> {
@@ -47,7 +56,7 @@ export async function signUp(_: FormState, form: FormData): Promise<FormState> {
   const values = { fullName: raw.fullName ?? "", username: raw.username ?? "", email: raw.email ?? "" };
   const parsed = signUpForm.safeParse(raw);
   if (!parsed.success) return { fields: fieldErrors(parsed.error), values };
-  if (!(await allowed("signup", "any", 5, 3600))) return { error: "Too many new accounts from here. Try again later.", values };
+  if (!(await allowed("signup", parsed.data.email, 3, 3600))) return { error: "Too many new accounts from here. Try again later.", values };
   const result = await backend.signUp(parsed.data);
   if (!result.ok) return { fields: { [result.field]: result.message }, values };
   if (result.confirmEmail) return { notice: "Almost there. Open the link we just emailed you to confirm your address, then sign in." };
@@ -56,7 +65,7 @@ export async function signUp(_: FormState, form: FormData): Promise<FormState> {
 
 export async function startDemo(form: FormData) {
   const tz = timezone.catch("UTC").parse(form.get("timezone"));
-  if (!(await allowed("demo", "any", 10, 3600))) redirect("/signin?demo=busy");
+  if (!(await allowedFromHere("demo", 10, 3600))) redirect("/signin?demo=busy");
   await backend.startDemo(tz, todayIn(tz));
   redirect("/today");
 }

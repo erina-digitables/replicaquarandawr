@@ -28,5 +28,5 @@ Stack as built: Next.js 15 (App Router, server actions) + Tailwind v4 tokens, in
 
 - The fake data layer is single-process and file-based: fine for development, not for deployment. replica-backend added the Supabase implementation behind the same interface (see `backend.md`).
 - Password-reset email (Resend) and the nightly demo-account purge (Vercel Cron) need the backend.
-- No automated tests yet (`web/src/lib/dawr.ts` is pure and ready for unit tests in replica-test).
-- Signed-out screens were checked by eye, not by the 390px script, because the script's iframe shares the signed-in session.
+- replica-test added the Playwright suite (`npm run e2e`, 99 cases, every flow, axe on every screen at 390 and 1440, light and dark). See `test-plan.md` and `bugs.md`. Still no unit tests for `web/src/lib/dawr.ts`; its behaviour is covered end to end.
+- Signed-out screens are now in the 390px sweep too (`e2e/a11y.spec.ts`).

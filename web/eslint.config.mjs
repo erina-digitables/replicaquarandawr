@@ -15,10 +15,18 @@ const eslintConfig = [
     ignores: [
       "node_modules/**",
       ".next/**",
+      ".next-e2e/**",
+      "playwright-report/**",
+      "test-results/**",
       "out/**",
       "build/**",
       "next-env.d.ts",
     ],
+  },
+  {
+    // Playwright fixtures call their own `use()`, which is not React's hook.
+    files: ["e2e/**"],
+    rules: { "react-hooks/rules-of-hooks": "off" },
   },
 ];
 

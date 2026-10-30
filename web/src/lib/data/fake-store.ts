@@ -13,7 +13,8 @@ type LogRow = DayLog & { userId: string; updatedAt: string };
 
 type DB = { users: UserRow[]; sessions: SessionRow[]; resets: ResetRow[]; logs: LogRow[] };
 
-const dir = join(process.cwd(), ".data");
+// The e2e server points this elsewhere so tests never touch your dev data.
+const dir = process.env.DAWR_DATA_DIR || join(process.cwd(), ".data");
 const file = join(dir, "dev-db.json");
 
 const g = globalThis as unknown as { __dawrDb?: DB };
@@ -27,12 +28,25 @@ export function db(): DB {
   return g.__dawrDb;
 }
 
-/** Write-through after every mutation. Rename makes the write atomic. */
+/**
+ * Write-through after every mutation. Rename makes the write atomic. Windows refuses
+ * the rename while another program has the file open (antivirus, an editor), so it
+ * retries for up to about a second before giving up (BUG-002).
+ */
 export function commit() {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
   const tmp = `${file}.tmp`;
   writeFileSync(tmp, JSON.stringify(db()));
-  renameSync(tmp, file);
+  for (let attempt = 0; ; attempt++) {
+    try {
+      renameSync(tmp, file);
+      return;
+    } catch (e) {
+      const code = (e as NodeJS.ErrnoException).code;
+      if ((code !== "EPERM" && code !== "EBUSY" && code !== "EACCES") || attempt >= 40) throw e;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 25);
+    }
+  }
 }
 
 export const newId = () => randomUUID();

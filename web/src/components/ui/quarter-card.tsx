@@ -18,11 +18,14 @@ export function QualityGroup({
   value,
   onChange,
   disabled,
+  busy,
 }: {
   quarterLabel: string;
   value: Quality | null;
   onChange: (q: Quality | null) => void;
   disabled?: boolean;
+  /** Saving. Stays operable: disabling would throw keyboard focus off the card. */
+  busy?: boolean;
 }) {
   const refs = useRef<Array<HTMLButtonElement | null>>([]);
   const focusIndex = Math.max(0, options.findIndex((o) => o.value === value));
@@ -38,7 +41,7 @@ export function QualityGroup({
 
   return (
     <div className="flex flex-col gap-2">
-      <div role="radiogroup" aria-label={`How did ${quarterLabel} go?`} className="grid grid-cols-3 gap-2">
+      <div role="radiogroup" aria-label={`How did ${quarterLabel} go?`} aria-busy={busy || undefined} className="grid grid-cols-3 gap-2">
         {options.map((o, i) => {
           const checked = value === o.value;
           return (
@@ -124,7 +127,7 @@ export function QuarterCard({
         </div>
         <CodeTag>{code}</CodeTag>
       </div>
-      <QualityGroup quarterLabel={title} value={quality} onChange={onChange} disabled={saving} />
+      <QualityGroup quarterLabel={title} value={quality} onChange={onChange} busy={saving} />
       {error && (
         <p role="alert" className="flex items-center gap-1.5 text-xs font-bold text-danger">
           <AlertCircle aria-hidden className="size-4" /> Couldn&apos;t save. Tap a rating to try again.

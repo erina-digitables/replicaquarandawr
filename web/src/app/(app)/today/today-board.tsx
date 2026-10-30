@@ -13,7 +13,9 @@ export function TodayBoard({ date, target, title, eyebrow, items }: { date: stri
     new Map(items.map((i) => [i.rub, i.quality])),
     (state, { rub, quality }: { rub: number; quality: Quality | null }) => new Map(state).set(rub, quality),
   );
-  const [saving, setSaving] = useState<Set<number>>(new Set());
+  // Optimistic too: a plain state update inside the transition would only render once
+  // the save had finished, so the card never showed it was saving (BUG-005).
+  const [saving, markSaving] = useOptimistic(new Set<number>(), (state, rub: number) => new Set(state).add(rub));
   const [failed, setFailed] = useState<Set<number>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
   const [, start] = useTransition();
@@ -27,7 +29,7 @@ export function TodayBoard({ date, target, title, eyebrow, items }: { date: stri
   function rate(rub: number, quality: Quality | null) {
     start(async () => {
       apply({ rub, quality });
-      setSaving((s) => new Set(s).add(rub));
+      markSaving(rub);
       try {
         await rateQuarter(date, rub, quality);
         setFailed((s) => {
@@ -38,12 +40,6 @@ export function TodayBoard({ date, target, title, eyebrow, items }: { date: stri
       } catch {
         setFailed((s) => new Set(s).add(rub));
         setToast("Couldn't save that rating. Check your connection and tap it again.");
-      } finally {
-        setSaving((s) => {
-          const n = new Set(s);
-          n.delete(rub);
-          return n;
-        });
       }
     });
   }
