@@ -17,7 +17,7 @@ Expected: all six get an account.
 Actual: from the sixth on, everyone gets "Too many new accounts from here. Try again later." The sample account had the same cap at 10 an hour.
 Evidence: F01-E7 failed at "person 3 of 6" (the parallel tests had used up the shared allowance), F01-E10 at "visitor 11 of 11". The first full run had 69 failures, nearly all of them this.
 Suspected cause: `allowed("signup", "any", …)` used the constant `"any"` as the rate-limit subject, so every visitor shared one bucket.
-Status: fixed in `test:` commit. Sign-up is now limited per email (3/h) and per network (12/h); the sample account per network (10/h). F01-N1 checks that one network still can't flood.
+Status: fixed in 632c97c. Sign-up is now limited per email (3/h) and per network (12/h); the sample account per network (10/h). F01-N1 checks that one network still can't flood.
 
 ### BUG-006: Rating by keyboard lost focus after each change (regression, never shipped)
 
@@ -32,7 +32,7 @@ Expected: the rating changes and focus stays on it, so the next arrow keeps work
 Actual: focus dropped to the page body while it saved.
 Evidence: F03-E2 failed on desktop and mobile with `toBeFocused` "inactive" on a `disabled` radio.
 Suspected cause: the first fix for BUG-005 disabled the buttons while saving, and a disabled element loses focus.
-Status: fixed in the same `test:` commit before it was ever committed: the group is now `aria-busy` while saving and stays operable.
+Status: fixed in 632c97c before it was ever committed: the group is now `aria-busy` while saving and stays operable.
 
 ### BUG-002: Dev backend: saves fail with a 500 on Windows when another program has the data file open
 
@@ -48,7 +48,7 @@ Expected: the rating saves.
 Actual: `EPERM: operation not permitted, rename …dev-db.json.tmp -> dev-db.json`, a 500, and the rating is lost.
 Evidence: F03-E9 (a reader holding the file open) failed with 500s; the server log showed the EPERM.
 Suspected cause: Windows refuses to replace a file that another process has open.
-Status: fixed in `test:` commit: the write retries for up to about a second on EPERM/EBUSY/EACCES.
+Status: fixed in 632c97c: the write retries for up to about a second on EPERM/EBUSY/EACCES.
 
 ### BUG-003: Pasting a reset code with a space cuts off the last digit
 
@@ -64,7 +64,7 @@ Expected: accepted; the server already strips spaces.
 Actual: the field held only "123 45", so "The code is 6 digits."
 Evidence: F08-H1 failure snapshot: `textbox "Code" [invalid]`, "The code is 6 digits."
 Suspected cause: `maxLength={6}` on the input.
-Status: fixed in `test:` commit (`maxLength={9}`; the server still requires exactly 6 digits).
+Status: fixed in 632c97c (`maxLength={9}`; the server still requires exactly 6 digits).
 
 ### BUG-004: The loading skeleton's label was invisible to screen readers
 
@@ -78,7 +78,7 @@ Steps
 Expected: the skeleton is announced as loading.
 Actual: axe `aria-prohibited-attr` on `div[aria-label="Loading"]`: an aria-label on a div with no role is ignored.
 Evidence: F07-H1 axe scan caught the skeleton mid-navigation; the dedicated skeleton test failed.
-Status: fixed in `test:` commit (`role="status"`).
+Status: fixed in 632c97c (`role="status"`).
 
 ### BUG-005: The saving spinner on a quarter card never appeared
 
@@ -93,7 +93,7 @@ Expected: the card shows it is saving until the server answers.
 Actual: no saving state at any point.
 Evidence: F03-E8 (save request held) failed: the card never showed it was saving.
 Suspected cause: the saving flag was ordinary state set inside a React transition, so it only rendered after the save had finished.
-Status: fixed in `test:` commit: the saving set is now `useOptimistic`, so it shows immediately and clears when the save lands.
+Status: fixed in 632c97c: the saving set is now `useOptimistic`, so it shows immediately and clears when the save lands.
 
 ### BUG-007: Dev backend: the sample account showed an invented email in the header
 
@@ -107,7 +107,7 @@ Steps
 Expected: "Sample account".
 Actual: `demo_1a2b3c4d@demo.invalid`.
 Evidence: F05-H3 failed on `getByText("Sample account")`.
-Status: fixed in `test:` commit (the header checks `isDemo`, not just a missing email).
+Status: fixed in 632c97c (the header checks `isDemo`, not just a missing email).
 
 ### BUG-008: Header label is cut off at desktop width even when it is short
 
