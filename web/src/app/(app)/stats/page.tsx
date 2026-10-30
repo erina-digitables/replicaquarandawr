@@ -2,7 +2,7 @@ import { Award, BookOpen, CalendarRange, Flame } from "lucide-react";
 import type { Metadata } from "next";
 import { DateNavigator } from "@/components/ui/progress";
 import { StatCard } from "@/components/ui/stats";
-import { listDays } from "@/lib/data";
+import { backend } from "@/lib/data";
 import { addDays, formatDay } from "@/lib/dates";
 import { stats, streak } from "@/lib/dawr";
 import { juzLabel } from "@/lib/quarters";
@@ -16,7 +16,7 @@ export default async function StatsPage({ searchParams }: { searchParams: Promis
   const user = await requireUser();
   const date = pickDate(user, (await searchParams).date);
   const today = userToday(user);
-  const days = await listDays(user.id);
+  const days = await backend.listDays(user.id);
   const s = stats(days, date);
   const weekEnd = addDays(s.weekStart, 6);
   const weekDays = days.filter((d) => d.date >= s.weekStart && d.date <= weekEnd);

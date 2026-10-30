@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { listDays } from "@/lib/data";
+import { backend } from "@/lib/data";
 import { requireUser, userToday } from "@/lib/session";
 import { DayList } from "./day-list";
 
@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "History" };
 
 export default async function HistoryPage() {
   const user = await requireUser();
-  const days = await listDays(user.id);
+  const days = await backend.listDays(user.id);
   const total = days.reduce((a, d) => a + d.done, 0);
   const met = days.filter((d) => d.goalMet).length;
   const juzCount = new Map<number, number>();

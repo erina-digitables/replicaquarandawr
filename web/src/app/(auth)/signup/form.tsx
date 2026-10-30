@@ -1,6 +1,7 @@
 "use client";
 
-import { AtSign, KeyRound, Mail, UserPlus } from "lucide-react";
+import { AtSign, KeyRound, Mail, MailCheck, UserPlus } from "lucide-react";
+import Link from "next/link";
 import { useActionState } from "react";
 import { signUp } from "@/app/actions/auth";
 import { TextField } from "@/components/ui/text-field";
@@ -10,6 +11,18 @@ export function SignUpForm() {
   const [state, action] = useActionState(signUp, null);
   const f = state?.fields ?? {};
   const v = state?.values ?? {};
+  if (state?.notice) {
+    return (
+      <div role="status" className="flex flex-col items-center gap-3 text-center">
+        <MailCheck aria-hidden className="size-10 text-success" />
+        <h1 className="font-display text-lg text-text">Check your email</h1>
+        <p className="text-sm text-text-muted">{state.notice}</p>
+        <Link href="/signin" className="mt-2 text-sm font-bold text-accent underline-offset-2 hover:underline">
+          Go to sign in
+        </Link>
+      </div>
+    );
+  }
   return (
     <>
       <AuthTabs active="signup" />

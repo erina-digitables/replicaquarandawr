@@ -126,6 +126,7 @@ select
   d.log_date,
   d.target_quarters,
   d.plan_locked,
+  count(q.rub)                                                             as quarter_rows,
   count(q.rub) filter (where q.quality is not null)                       as done_count,
   count(q.rub) filter (where q.quality = 'needs_work')                     as needs_work_count,
   count(q.rub) filter (where q.quality is not null) >= d.target_quarters   as goal_met,

@@ -7,13 +7,23 @@ import { signIn } from "@/app/actions/auth";
 import { TextField } from "@/components/ui/text-field";
 import { AuthTabs, DemoForm, FormError, SubmitButton } from "../shared";
 
-export function SignInForm() {
+const notices: Record<string, string> = {
+  failed: "That confirmation link didn't work. It may have expired. Sign in, or create the account again for a new link.",
+  busy: "The sample account is busy right now. Try again in a little while.",
+};
+
+export function SignInForm({ notice }: { notice?: string }) {
   const [state, action] = useActionState(signIn, null);
   return (
     <>
       <AuthTabs active="signin" />
       <h1 className="sr-only">Sign in</h1>
       <form action={action} className="flex flex-col gap-4" noValidate>
+        {notice && notices[notice] && !state?.error && (
+          <p role="status" className="rounded-md border border-highlight/30 bg-highlight-soft px-3 py-2 text-sm text-text">
+            {notices[notice]}
+          </p>
+        )}
         <FormError message={state?.error} />
         <TextField
           label="Username or email"

@@ -1,15 +1,15 @@
-import { listDays } from "@/lib/data";
+import { backend } from "@/lib/data";
 import { streak, streakAtRisk } from "@/lib/dawr";
 import { requireUser, userToday } from "@/lib/session";
 import { Chrome } from "./chrome";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
-  const days = await listDays(user.id);
+  const days = await backend.listDays(user.id);
   const today = userToday(user);
   return (
     <div className="mx-auto flex w-full max-w-(--container-column) flex-col gap-4 px-4 py-4 sm:py-6">
-      <Chrome email={user.email} streak={streak(days, today)} atRisk={streakAtRisk(days, today)} />
+      <Chrome email={user.email || "Sample account"} streak={streak(days, today)} atRisk={streakAtRisk(days, today)} />
       <main id="main" className="flex flex-col gap-4">
         {children}
       </main>

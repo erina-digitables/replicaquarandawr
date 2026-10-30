@@ -1,16 +1,12 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
-import { getSessionUser, type Profile } from "@/lib/data";
+import { backend, type Profile } from "@/lib/data";
 import { isValidDate, todayIn, type ISODate } from "@/lib/dates";
 
-export const SESSION_COOKIE = "dawr_session";
 export const THEME_COOKIE = "dawr_theme";
 
-export const currentUser = cache(async (): Promise<Profile | null> => {
-  const jar = await cookies();
-  return getSessionUser(jar.get(SESSION_COOKIE)?.value);
-});
+/** The signed-in user, once per request. */
+export const currentUser = cache(async (): Promise<Profile | null> => backend.currentUser());
 
 export async function requireUser(): Promise<Profile> {
   const user = await currentUser();

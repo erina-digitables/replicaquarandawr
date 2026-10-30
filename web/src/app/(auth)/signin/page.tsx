@@ -3,6 +3,7 @@ import { SignInForm } from "./form";
 
 export const metadata: Metadata = { title: "Sign in" };
 
-export default function Page() {
-  return <SignInForm />;
+export default async function Page({ searchParams }: { searchParams: Promise<{ confirm?: string; demo?: string }> }) {
+  const sp = await searchParams;
+  return <SignInForm notice={sp.confirm ?? sp.demo} />;
 }

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/feedback";
 import { DateNavigator } from "@/components/ui/progress";
-import { getDay, previousActiveDay } from "@/lib/data";
+import { backend } from "@/lib/data";
 import { addDays, formatDay, relativeLabel } from "@/lib/dates";
 import { checklistFor } from "@/lib/dawr";
 import { portionTitle, quarter, quarterStart, quarterTitle } from "@/lib/quarters";
@@ -18,7 +18,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   const date = pickDate(user, (await searchParams).date);
   const today = userToday(user);
   const isToday = date === today;
-  const [day, previous] = await Promise.all([getDay(user.id, date), previousActiveDay(user.id, date)]);
+  const [day, previous] = await Promise.all([backend.getDay(user.id, date), backend.previousActiveDay(user.id, date)]);
   const { rubs, source, locked } = checklistFor(day, previous, user.dailyTarget);
   const target = day?.target ?? user.dailyTarget;
   const qualities = new Map(day?.quarters.map((q) => [q.rub, q.quality]) ?? []);
