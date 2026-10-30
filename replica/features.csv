@@ -1,36 +1,36 @@
 feature,area,priority,original,clone,notes
-Sign up with name username email password,auth,must,yes,no,S02
-Sign in with username or email,auth,must,yes,no,S01
-Sign out,auth,must,yes,no,header icon and S08
-Forgot password with reset link or code,auth,should,yes,no,S03; rest of flow not observed
-Daily checklist of quarters for the selected day,today,must,yes,no,S04 core loop
-Mark a quarter done with quality Good/Average/Needs Work in one tap,today,must,yes,no,S04
-Change quality or uncheck a quarter,today,must,yes,no,S04
-Daily goal card with progress bar and percent,today,must,yes,no,S04
-Goal reached celebration banner,today,should,yes,no,S04 complete state
-Instant autosave of every tap,today,must,yes,no,"""auto-save instantly"" note on S04"
-Navigate to previous/next day and edit past logs,today,must,yes,no,DateNavigator on S04 and S06
-Configurable daily target in quarters with stepper and presets,target,must,yes,no,S05 and S08 Target Config
-Correct quarter/juz maths (240 rub' / 8 per juz),target,must,partial,no,original uses 4 per juz and contradicts itself
-Plan builder: pick specific quarters across 30 juz,plan,should,yes,no,S05 accordion with search ALL CLEAR
-Lock plan to show only planned quarters,plan,should,yes,no,S05; locked state not observed
-Default next quarters auto-suggested when no plan,plan,should,partial,no,S04 showed Juz 1 by default; rotation rule unknown
-Streak counter in header,engagement,must,yes,no,streak rule unknown
-Statistics: month and year totals with juz equivalent,stats,should,yes,no,S06
-Weekly bar chart with goal line; click bar to open day,stats,should,yes,no,S06
-Weekly total and daily average,stats,should,yes,no,S06
-History list of logged days with status,history,must,yes,no,S07
-History search by date or juz,history,could,yes,no,S07
-History filter all / goal achieved / incomplete,history,should,yes,no,S07
-Delete a day's log,history,should,yes,no,S07 bin icon; confirm not observed
-Reset all revision logs,data,could,yes,no,footer and S08; destructive
-Account page with name username email UID,account,should,yes,no,S08 Account; copy buttons
-Revision tips page,content,could,yes,no,S08 static guideline cards
-Light and dark theme toggle,ui,should,yes,no,global including signed-out screens
-Mobile-first responsive layout,ui,must,partial,no,original header overflows at 375px
-Success toasts,ui,could,yes,no,sign-in greeting toast
-Try-demo sandbox account,onboarding,could,partial,no,original prints demo credentials on login page
-Juz names and start ayah per quarter,content,could,partial,no,original shows juz name only for the goal title
+Sign up with name username email password,auth,must,yes,yes,S02; validation per field; fake data layer until replica-backend
+Sign in with username or email,auth,must,yes,yes,S01; case-insensitive; one generic error; per-identifier rate limit
+Sign out,auth,must,yes,yes,header icon (tablet+) and Settings
+Forgot password with reset link or code,auth,should,yes,partial,S03 6-digit code flow works end to end; email not sent yet (code goes to the dev server log) until Resend is wired in replica-backend
+Daily checklist of quarters for the selected day,today,must,yes,yes,S04 core loop
+Mark a quarter done with quality Good/Average/Needs Work in one tap,today,must,yes,yes,S04; labelled Good / Okay / Weak; radio group with arrow keys
+Change quality or uncheck a quarter,today,must,yes,yes,S04 re-rate or Clear rating
+Daily goal card with progress bar and percent,today,must,yes,yes,S04 shows n of target; progressbar role
+Goal reached celebration banner,today,should,yes,yes,S04 met state
+Instant autosave of every tap,today,must,yes,yes,optimistic UI; per-card saving spinner; error state with retry toast
+Navigate to previous/next day and edit past logs,today,must,yes,yes,S04 and S06 date navigation; future dates blocked; empty past day offers Log this day
+Configurable daily target in quarters with stepper and presets,target,must,yes,yes,S05 and S08 Goal; 1-240; snapshot per day
+Correct quarter/juz maths (240 rub' / 8 per juz),target,must,partial,yes,240 quarters from quran-meta (Hafs); one juzLabel helper everywhere
+Plan builder: pick specific quarters across 30 juz,plan,should,yes,yes,S05 accordion with search and Next N in order
+Lock plan to show only planned quarters,plan,should,yes,yes,S05 Start reading locks; S04 shows plan-only banner with Edit plan
+Default next quarters auto-suggested when no plan,plan,should,partial,yes,continues after the highest quarter finished on the last active day; wraps 240 to 1
+Streak counter in header,engagement,must,yes,yes,goal-met days in a row; today counts once met; at-risk dashed state
+Statistics: month and year totals with juz equivalent,stats,should,yes,yes,S06
+Weekly bar chart with goal line; click bar to open day,stats,should,yes,yes,S06; each bar is a labelled button; week navigation
+Weekly total and daily average,stats,should,yes,yes,S06
+History list of logged days with status,history,must,yes,yes,S07; Goal met / In progress / Short of goal; weak-count badge
+History search by date or juz,history,could,yes,yes,S07 month name / ISO date / juz number
+History filter all / goal achieved / incomplete,history,should,yes,yes,S07 All / Goal met / Short
+Delete a day's log,history,should,yes,yes,S07 with undo toast (pauses on hover/focus)
+Reset all revision logs,data,could,yes,yes,S08 Account danger zone; type RESET to confirm
+Account page with name username email UID,account,should,yes,yes,S08 Account: edit name/username/time zone; copy email; no UID shown; change password; delete account
+Revision tips page,content,could,yes,yes,S08 Tips; own wording
+Light and dark theme toggle,ui,should,yes,yes,header toggle plus Match device / Light / Dark; server-rendered so no flash
+Mobile-first responsive layout,ui,must,partial,yes,checked at 390 and 1440: no overflow; 44px targets
+Success toasts,ui,could,yes,partial,error toast on save failure and undo toast; no welcome toast after sign-in
+Try-demo sandbox account,onboarding,could,partial,yes,Try it with sample data: private account seeded with 13 days; no purge job yet
+Juz names and start ayah per quarter,content,could,partial,yes,every card shows surah name and surah:ayah; juz names in plan builder
 Show and copy plaintext password,account,skip,yes,skip,security anti-pattern; never store or display passwords
 Firestore rules & schema developer panel,dev,skip,yes,skip,build showcase not a product feature
 PRO tier,billing,skip,partial,skip,badge only; no visible pricing to study; design our own if needed

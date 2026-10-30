@@ -70,7 +70,7 @@ export function QualityGroup({
           type="button"
           onClick={() => onChange(null)}
           disabled={disabled}
-          className="self-start rounded-sm px-1 text-xs font-bold text-text-muted underline-offset-2 hover:text-text hover:underline min-h-6"
+          className="relative min-h-6 self-start rounded-sm px-1 text-xs font-bold text-text-muted underline-offset-2 after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-[''] hover:text-text hover:underline"
         >
           Clear rating
         </button>

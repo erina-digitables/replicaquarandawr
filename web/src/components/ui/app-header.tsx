@@ -31,7 +31,7 @@ export function AppHeader({
 }) {
   return (
     <header className="flex h-16 items-center gap-2 rounded-xl border border-border bg-surface px-3 shadow-card">
-      <Link href="/today" className="flex min-w-0 flex-1 items-center gap-2 rounded-md">
+      <Link href="/today" className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-md">
         <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-md bg-accent text-on-accent">
           <BookOpenCheck className="size-5" />
         </span>

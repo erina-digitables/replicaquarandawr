@@ -66,7 +66,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             <p className="flex items-center gap-2 rounded-md border border-accent/30 bg-accent-soft px-4 py-3 text-sm text-text">
               <Lock aria-hidden className="size-4 shrink-0 text-accent" />
               <span className="flex-1">Showing your plan only.</span>
-              <Link href={`/plan?date=${date}`} className="font-bold text-accent underline-offset-2 hover:underline">
+              <Link href={`/plan?date=${date}`} className="-my-3 inline-flex min-h-11 items-center px-1 font-bold text-accent underline-offset-2 hover:underline">
                 Edit plan
               </Link>
             </p>
