@@ -24,7 +24,7 @@ One database, one app, no services.
 
 ## Schema
 
-Tables: 4 (`quarters` reference, `profiles`, `daily_logs`, `log_quarters`), plus 1 view (`day_summaries`) and 4 functions. Access rules: **Postgres row level security** on every table. The full migration is in [`replica/schema.sql`](schema.sql).
+Tables: 4 (`quarters` reference, `profiles`, `daily_logs`, `log_quarters`), plus 1 view (`day_summaries`) and 4 functions. Access rules: **Postgres row level security** on every table. The migrations live in [`web/supabase/migrations/`](../web/supabase/migrations) (moved there by replica-backend, which also added write functions, rate limits and a job log; see `backend.md`).
 
 Decisions behind it:
 

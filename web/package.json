@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:test": "node supabase/tests/migrations.test.mjs",
+    "db:link": "npx supabase@2 link",
+    "db:push": "npx supabase@2 db push",
+    "db:config": "npx supabase@2 config push",
+    "db:seed": "node --env-file=.env.local scripts/seed.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

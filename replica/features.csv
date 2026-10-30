@@ -1,8 +1,8 @@
 feature,area,priority,original,clone,notes
-Sign up with name username email password,auth,must,yes,yes,S02; validation per field; fake data layer until replica-backend
-Sign in with username or email,auth,must,yes,yes,S01; case-insensitive; one generic error; per-identifier rate limit
+Sign up with name username email password,auth,must,yes,yes,"S02; email verification via Supabase confirm link (code ready, live check pending keys)"
+Sign in with username or email,auth,must,yes,yes,S01; username resolved server-side; DB rate limit per identifier and IP
 Sign out,auth,must,yes,yes,header icon (tablet+) and Settings
-Forgot password with reset link or code,auth,should,yes,partial,S03 6-digit code flow works end to end; email not sent yet (code goes to the dev server log) until Resend is wired in replica-backend
+Forgot password with reset link or code,auth,should,yes,partial,S03 6-digit code via Supabase recovery OTP + Resend template; dev backend prints the code; live email check pending keys
 Daily checklist of quarters for the selected day,today,must,yes,yes,S04 core loop
 Mark a quarter done with quality Good/Average/Needs Work in one tap,today,must,yes,yes,S04; labelled Good / Okay / Weak; radio group with arrow keys
 Change quality or uncheck a quarter,today,must,yes,yes,S04 re-rate or Clear rating
@@ -24,12 +24,12 @@ History search by date or juz,history,could,yes,yes,S07 month name / ISO date / 
 History filter all / goal achieved / incomplete,history,should,yes,yes,S07 All / Goal met / Short
 Delete a day's log,history,should,yes,yes,S07 with undo toast (pauses on hover/focus)
 Reset all revision logs,data,could,yes,yes,S08 Account danger zone; type RESET to confirm
-Account page with name username email UID,account,should,yes,yes,S08 Account: edit name/username/time zone; copy email; no UID shown; change password; delete account
+Account page with name username email UID,account,should,yes,yes,"S08 Account; delete account really deletes (cascade, tested)"
 Revision tips page,content,could,yes,yes,S08 Tips; own wording
 Light and dark theme toggle,ui,should,yes,yes,header toggle plus Match device / Light / Dark; server-rendered so no flash
 Mobile-first responsive layout,ui,must,partial,yes,checked at 390 and 1440: no overflow; 44px targets
 Success toasts,ui,could,yes,partial,error toast on save failure and undo toast; no welcome toast after sign-in
-Try-demo sandbox account,onboarding,could,partial,yes,Try it with sample data: private account seeded with 13 days; no purge job yet
+Try-demo sandbox account,onboarding,could,partial,yes,Supabase anonymous sign-in seeded with 13 days; nightly purge job (Vercel Cron) with job_runs log
 Juz names and start ayah per quarter,content,could,partial,yes,every card shows surah name and surah:ayah; juz names in plan builder
 Show and copy plaintext password,account,skip,yes,skip,security anti-pattern; never store or display passwords
 Firestore rules & schema developer panel,dev,skip,yes,skip,build showcase not a product feature

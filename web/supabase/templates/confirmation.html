@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:24px;background:#fafafa;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;color:#18181b">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;margin:0 auto;background:#ffffff;border:1px solid #e4e4e7;border-radius:16px">
+      <tr>
+        <td style="padding:32px">
+          <p style="margin:0 0 4px;font-size:20px;font-weight:800">Confirm your email</p>
+          <p style="margin:0 0 24px;font-size:15px;line-height:22px;color:#52525b">
+            One step left before you can start tracking your revision with Dawr. Tap the button to confirm this address.
+          </p>
+          <p style="margin:0 0 24px">
+            <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email"
+               style="display:inline-block;background:#334155;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:12px 20px;border-radius:12px">
+              Confirm my email
+            </a>
+          </p>
+          <p style="margin:0;font-size:13px;line-height:20px;color:#52525b">
+            If you didn't create a Dawr account, ignore this email and nothing will happen.
+          </p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

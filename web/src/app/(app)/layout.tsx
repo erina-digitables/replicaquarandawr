@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { backend } from "@/lib/data";
 import { streak, streakAtRisk } from "@/lib/dawr";
 import { requireUser, userToday } from "@/lib/session";
@@ -14,7 +15,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         {children}
       </main>
       <footer className="pb-4 pt-2 text-center text-xs text-text-muted">
-        Quarter start points: quran-meta (MIT) ·{" "}
+        <Link className="underline underline-offset-2" href="/privacy">Privacy</Link> · Quarter start points: quran-meta (MIT) ·{" "}
         <a className="underline underline-offset-2" href="https://github.com/quran-center/quran-meta">
           source
         </a>

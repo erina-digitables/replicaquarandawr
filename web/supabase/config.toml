@@ -1,0 +1,48 @@
+# Supabase CLI config. Auth settings here are pushed with `npx supabase config push`
+# (after `npx supabase link`). Check them in the dashboard afterwards: Auth > Providers / Emails / Rate limits.
+project_id = "dawr"
+
+[api]
+schemas = ["public"]
+
+[auth]
+site_url = "env(SITE_URL)"
+additional_redirect_urls = ["http://localhost:3000/auth/confirm"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+# The "Try it with sample data" button signs in anonymously.
+enable_anonymous_sign_ins = true
+minimum_password_length = 8
+
+[auth.rate_limit]
+email_sent = 30
+anonymous_users = 30
+sign_in_sign_ups = 30
+token_verifications = 30
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+double_confirm_changes = true
+secure_password_change = false
+otp_length = 6
+otp_expiry = 900
+
+[auth.email.template.confirmation]
+subject = "Confirm your email for Dawr"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Your Dawr reset code"
+content_path = "./supabase/templates/recovery.html"
+
+# Resend over SMTP, from your own verified domain.
+[auth.email.smtp]
+enabled = true
+host = "smtp.resend.com"
+port = 465
+user = "resend"
+pass = "env(RESEND_API_KEY)"
+admin_email = "env(EMAIL_FROM)"
+sender_name = "Dawr"

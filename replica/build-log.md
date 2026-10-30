@@ -26,7 +26,7 @@ Stack as built: Next.js 15 (App Router, server actions) + Tailwind v4 tokens, in
 
 ## Not done yet (honest list)
 
-- The fake data layer is single-process and file-based: fine for development, not for deployment. replica-backend swaps it for Supabase (`replica/schema.sql`, `replica/seed-quarters.sql`).
+- The fake data layer is single-process and file-based: fine for development, not for deployment. replica-backend added the Supabase implementation behind the same interface (see `backend.md`).
 - Password-reset email (Resend) and the nightly demo-account purge (Vercel Cron) need the backend.
 - No automated tests yet (`web/src/lib/dawr.ts` is pure and ready for unit tests in replica-test).
 - Signed-out screens were checked by eye, not by the 390px script, because the script's iframe shares the signed-in session.
