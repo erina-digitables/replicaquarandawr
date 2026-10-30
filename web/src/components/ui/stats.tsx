@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronRight, Trash2, Trophy } from "lucide-react";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { Badge } from "./badge";
@@ -82,24 +83,30 @@ export function WeeklyBarChart({
 }
 
 export function DayRow({
+  href = "#",
   date,
   done,
   target,
   juz,
+  needsWork = 0,
+  openLabel = "In progress",
   selected,
   onDelete,
 }: {
+  openLabel?: string;
+  href?: string;
   date: string;
   done: number;
   target: number;
   juz: string;
+  needsWork?: number;
   selected?: boolean;
   onDelete?: () => void;
 }) {
   const met = done >= target;
   return (
     <div className={cn("flex items-center gap-2 rounded-md border p-2 pl-3", selected ? "border-accent/50 bg-accent-soft" : "border-border bg-surface")}>
-      <a href="#" className="flex min-h-11 min-w-0 flex-1 items-center gap-3 rounded-sm">
+      <Link href={href} aria-current={selected ? "date" : undefined} className="flex min-h-11 min-w-0 flex-1 items-center gap-3 rounded-sm">
         <span
           className={cn(
             "grid size-11 shrink-0 place-items-center rounded-md border font-mono text-sm font-bold",
@@ -116,13 +123,14 @@ export function DayRow({
                 Goal met
               </Badge>
             ) : (
-              <Badge tone="accent">In progress</Badge>
+              <Badge tone="accent">{openLabel}</Badge>
             )}
             {juz}
+            {needsWork > 0 && <Badge tone="danger">{needsWork} weak</Badge>}
           </span>
         </span>
         <ChevronRight aria-hidden className="ml-auto size-5 shrink-0 text-text-muted" />
-      </a>
+      </Link>
       <IconButton label={`Delete log for ${date}`} onClick={onDelete}>
         <Trash2 aria-hidden />
       </IconButton>
