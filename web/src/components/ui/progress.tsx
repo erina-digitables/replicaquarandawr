@@ -1,4 +1,5 @@
 import { CalendarDays, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { Badge } from "./badge";
 import { IconButton } from "./button";
@@ -24,7 +25,7 @@ export function ProgressBar({ value, max, label }: { value: number; max: number;
   );
 }
 
-export function GoalCard({ title, done, target }: { title: string; done: number; target: number }) {
+export function GoalCard({ title, done, target, eyebrow = "Today's portion" }: { title: string; done: number; target: number; eyebrow?: string }) {
   const met = done >= target;
   const status = done === 0 ? "Not started" : met ? "Goal met" : "In progress";
   return (
@@ -33,7 +34,7 @@ export function GoalCard({ title, done, target }: { title: string; done: number;
       className={cn("flex flex-col gap-4 rounded-xl border bg-surface p-6", met ? "border-success/40" : "border-border")}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <Badge tone="accent">Today&apos;s portion</Badge>
+        <Badge tone="accent">{eyebrow}</Badge>
         <Badge tone={met ? "success" : done ? "highlight" : "neutral"}>{status}</Badge>
       </div>
       <div>
@@ -52,8 +53,8 @@ export function GoalCard({ title, done, target }: { title: string; done: number;
             <Sparkles aria-hidden className="size-5" />
           </span>
           <div>
-            <p className="font-display text-base font-extrabold text-text">Goal met for today</p>
-            <p className="text-sm text-text-muted">Every quarter you planned is done. Barakallahu feek.</p>
+            <p className="font-display text-base font-extrabold text-text">Goal met</p>
+            <p className="text-sm text-text-muted">That&apos;s the day&apos;s portion done. Barakallahu feek.</p>
           </div>
         </div>
       )}
@@ -61,32 +62,52 @@ export function GoalCard({ title, done, target }: { title: string; done: number;
   );
 }
 
+const navLink =
+  "inline-grid size-11 shrink-0 place-items-center rounded-pill border border-border bg-surface-2 text-text-muted hover:text-text [&_svg]:size-5";
+
 export function DateNavigator({
   label,
   date,
   onPrev,
   onNext,
+  prevHref,
+  nextHref,
   isToday,
 }: {
   label: string;
   date: string;
   onPrev?: () => void;
   onNext?: () => void;
+  /** Link-based navigation (server pages). Takes precedence over the callbacks. */
+  prevHref?: string;
+  nextHref?: string;
   isToday?: boolean;
 }) {
   return (
     <div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-surface p-2">
-      <IconButton label="Previous day" onClick={onPrev}>
-        <ChevronLeft aria-hidden />
-      </IconButton>
-      <p aria-live="polite" className="flex items-center gap-2 text-sm">
-        <CalendarDays aria-hidden className="size-4 text-highlight" />
-        <span className="font-display font-extrabold text-text">{label}</span>
-        <span className="font-mono text-xs text-text-muted">{date}</span>
+      {prevHref ? (
+        <Link href={prevHref} aria-label="Previous day" title="Previous day" className={navLink}>
+          <ChevronLeft aria-hidden />
+        </Link>
+      ) : (
+        <IconButton label="Previous day" onClick={onPrev}>
+          <ChevronLeft aria-hidden />
+        </IconButton>
+      )}
+      <p aria-live="polite" className="flex min-w-0 items-center gap-2 text-sm">
+        <CalendarDays aria-hidden className="size-4 shrink-0 text-highlight" />
+        <span className="truncate font-display font-extrabold text-text">{label}</span>
+        <span className="shrink-0 font-mono text-xs text-text-muted">{date}</span>
       </p>
-      <IconButton label="Next day" onClick={onNext} disabled={isToday}>
-        <ChevronRight aria-hidden />
-      </IconButton>
+      {nextHref && !isToday ? (
+        <Link href={nextHref} aria-label="Next day" title="Next day" className={navLink}>
+          <ChevronRight aria-hidden />
+        </Link>
+      ) : (
+        <IconButton label="Next day" onClick={onNext} disabled={isToday}>
+          <ChevronRight aria-hidden />
+        </IconButton>
+      )}
     </div>
   );
 }
