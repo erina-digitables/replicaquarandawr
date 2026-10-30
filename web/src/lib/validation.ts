@@ -7,7 +7,7 @@ export const username = z
   .trim()
   .toLowerCase()
   .regex(/^[a-z0-9_]{3,24}$/, "3-24 characters: lowercase letters, numbers and _.");
-export const email = z.string().trim().toLowerCase().max(254).email("Enter an email like name@example.com.");
+export const email = z.string().trim().toLowerCase().max(254).pipe(z.email("Enter an email like name@example.com."));
 export const password = z.string().min(8, "Use at least 8 characters.").max(72, "Keep it under 72 characters.");
 export const fullName = z.string().trim().min(1, "Tell us what to call you.").max(80, "Keep it under 80 characters.");
 export const identifier = z.string().trim().min(1, "Enter your username or email.").max(254);
@@ -45,7 +45,8 @@ export const dayLog = z.object({
         rub,
         planned: z.boolean(),
         quality: quality.nullable(),
-        completedAt: z.string().datetime().nullable(),
+        // Postgres returns "+00:00", the dev backend "Z": accept both.
+        completedAt: z.iso.datetime({ offset: true }).nullable(),
       }),
     )
     .max(240),

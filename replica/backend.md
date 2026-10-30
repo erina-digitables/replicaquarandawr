@@ -78,12 +78,12 @@ None beyond the above. The Quran data is static (quran-meta, MIT), bundled at bu
 - [x] webhooks verify signatures: no inbound webhooks; the cron endpoint requires a bearer secret
 - [x] uploads: none
 - [x] no user data in URLs or logs: the reset flow keeps the identifier in an http-only cookie (it used to be `?for=` in the URL); the dev backend logs the code, never the address; rate-limit keys are SHA-256 hashed
-- [ ] **dependencies audited: FAILING.** `npm audit` reports Next.js 15.5.4 (critical: several RCE/DoS/SSRF advisories, fixed in **15.5.28**, also clears the PostCSS and sharp findings) and zod 3 (high, memory exhaustion, fixed in **4.6.7**). The upgrade failed: **drive C: is out of space** (0.18 GB free). Must be fixed before deploy.
+- [x] dependencies audited: `npm audit` reports **0 vulnerabilities** (2026-10-30). Upgraded Next.js 15.5.4 → 15.5.28 (critical RCE/DoS/SSRF advisories), zod 3 → 4.6.7 (high), sharp via `npm audit fix`. Next 15 pins PostCSS 8.4.31, which has open advisories fixed only in Next 16, so `package.json` `overrides` lifts that nested copy to ^8.5.32 (the same line Tailwind uses). Remove the override when moving to Next 16. Checked after the upgrade: `tsc`, lint, `db:test`, `next build`, and rate → reload → delete → undo in the app.
 - [x] privacy page lists every processor (Supabase, Vercel, Resend): `/privacy`, linked from the footer. Needs the operator's name and contact before launch.
 
 ## Known gaps
 
 - Not yet run against a real Supabase project (see the live checks).
-- `npm audit` upgrade blocked by disk space.
+- Fixed during the upgrade: History undo validated `completedAt` as UTC-only ("Z"), but Postgres returns "+00:00", so undo would have failed on Supabase. It now accepts offsets.
 - The dev backend's rate limiter is per-process; fine for development only.
 - Supabase also rate-limits auth emails per hour on its side (`config.toml` sets 30).
