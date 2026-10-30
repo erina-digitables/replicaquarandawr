@@ -1,0 +1,37 @@
+feature,area,priority,original,clone,notes
+Sign up with name username email password,auth,must,yes,no,S02
+Sign in with username or email,auth,must,yes,no,S01
+Sign out,auth,must,yes,no,header icon and S08
+Forgot password with reset link or code,auth,should,yes,no,S03; rest of flow not observed
+Daily checklist of quarters for the selected day,today,must,yes,no,S04 core loop
+Mark a quarter done with quality Good/Average/Needs Work in one tap,today,must,yes,no,S04
+Change quality or uncheck a quarter,today,must,yes,no,S04
+Daily goal card with progress bar and percent,today,must,yes,no,S04
+Goal reached celebration banner,today,should,yes,no,S04 complete state
+Instant autosave of every tap,today,must,yes,no,"""auto-save instantly"" note on S04"
+Navigate to previous/next day and edit past logs,today,must,yes,no,DateNavigator on S04 and S06
+Configurable daily target in quarters with stepper and presets,target,must,yes,no,S05 and S08 Target Config
+Correct quarter/juz maths (240 rub' / 8 per juz),target,must,partial,no,original uses 4 per juz and contradicts itself
+Plan builder: pick specific quarters across 30 juz,plan,should,yes,no,S05 accordion with search ALL CLEAR
+Lock plan to show only planned quarters,plan,should,yes,no,S05; locked state not observed
+Default next quarters auto-suggested when no plan,plan,should,partial,no,S04 showed Juz 1 by default; rotation rule unknown
+Streak counter in header,engagement,must,yes,no,streak rule unknown
+Statistics: month and year totals with juz equivalent,stats,should,yes,no,S06
+Weekly bar chart with goal line; click bar to open day,stats,should,yes,no,S06
+Weekly total and daily average,stats,should,yes,no,S06
+History list of logged days with status,history,must,yes,no,S07
+History search by date or juz,history,could,yes,no,S07
+History filter all / goal achieved / incomplete,history,should,yes,no,S07
+Delete a day's log,history,should,yes,no,S07 bin icon; confirm not observed
+Reset all revision logs,data,could,yes,no,footer and S08; destructive
+Account page with name username email UID,account,should,yes,no,S08 Account; copy buttons
+Revision tips page,content,could,yes,no,S08 static guideline cards
+Light and dark theme toggle,ui,should,yes,no,global including signed-out screens
+Mobile-first responsive layout,ui,must,partial,no,original header overflows at 375px
+Success toasts,ui,could,yes,no,sign-in greeting toast
+Try-demo sandbox account,onboarding,could,partial,no,original prints demo credentials on login page
+Juz names and start ayah per quarter,content,could,partial,no,original shows juz name only for the goal title
+Show and copy plaintext password,account,skip,yes,skip,security anti-pattern; never store or display passwords
+Firestore rules & schema developer panel,dev,skip,yes,skip,build showcase not a product feature
+PRO tier,billing,skip,partial,skip,badge only; no visible pricing to study; design our own if needed
+Their users and revision data,data,skip,yes,skip,owned by the original

@@ -1,0 +1,78 @@
+/* Generated from tokens.json by build-tokens.mjs. Do not edit by hand.
+   Import after tailwindcss:  @import "tailwindcss"; @import "./tokens.css"; @import "./tailwind.css"; */
+@theme inline {
+  --color-*: initial;
+  --color-bg: var(--t-bg);
+  --color-surface: var(--t-surface);
+  --color-surface-2: var(--t-surface-2);
+  --color-border: var(--t-border);
+  --color-border-input: var(--t-border-input);
+  --color-text: var(--t-text);
+  --color-text-muted: var(--t-text-muted);
+  --color-accent: var(--t-accent);
+  --color-accent-hover: var(--t-accent-hover);
+  --color-on-accent: var(--t-on-accent);
+  --color-accent-soft: var(--t-accent-soft);
+  --color-highlight: var(--t-highlight);
+  --color-highlight-soft: var(--t-highlight-soft);
+  --color-focus: var(--t-focus);
+  --color-success: var(--t-success);
+  --color-success-soft: var(--t-success-soft);
+  --color-warning: var(--t-warning);
+  --color-warning-soft: var(--t-warning-soft);
+  --color-danger: var(--t-danger);
+  --color-danger-soft: var(--t-danger-soft);
+  --color-solid-success: var(--t-solid-success);
+  --color-solid-warning: var(--t-solid-warning);
+  --color-solid-danger: var(--t-solid-danger);
+  --color-on-solid: var(--t-on-solid);
+
+  --font-display: var(--t-font-display);
+  --font-sans: var(--t-font-sans);
+  --font-mono: var(--t-font-mono);
+
+  --text-*: initial;
+  --text-xs: var(--t-text-xs);
+  --text-xs--line-height: var(--t-text-xs-line);
+  --text-xs--font-weight: var(--t-text-xs-weight);
+  --text-sm: var(--t-text-sm);
+  --text-sm--line-height: var(--t-text-sm-line);
+  --text-sm--font-weight: var(--t-text-sm-weight);
+  --text-base: var(--t-text-base);
+  --text-base--line-height: var(--t-text-base-line);
+  --text-base--font-weight: var(--t-text-base-weight);
+  --text-lg: var(--t-text-lg);
+  --text-lg--line-height: var(--t-text-lg-line);
+  --text-lg--font-weight: var(--t-text-lg-weight);
+  --text-xl: var(--t-text-xl);
+  --text-xl--line-height: var(--t-text-xl-line);
+  --text-xl--font-weight: var(--t-text-xl-weight);
+  --text-display: var(--t-text-display);
+  --text-display--line-height: var(--t-text-display-line);
+  --text-display--font-weight: var(--t-text-display-weight);
+
+  --radius-*: initial;
+  --radius-sm: var(--t-radius-sm);
+  --radius-md: var(--t-radius-md);
+  --radius-lg: var(--t-radius-lg);
+  --radius-xl: var(--t-radius-xl);
+  --radius-pill: var(--t-radius-pill);
+
+  --shadow-*: initial;
+  --shadow-card: var(--t-shadow-card);
+  --shadow-pop: var(--t-shadow-pop);
+
+  --spacing: 4px;
+  --breakpoint-sm: 400px;
+  --breakpoint-md: 768px;
+  --container-column: var(--t-column);
+  --ease-out: var(--t-ease);
+}
+
+/* dark: matches an explicit dark choice, or the OS setting when the user has not picked light */
+@custom-variant dark {
+  &:where([data-theme=dark], [data-theme=dark] *) { @slot; }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme=light]) *) { @slot; }
+  }
+}

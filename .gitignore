@@ -1,0 +1,5 @@
+# Screenshots of the original app: reference only, never shipped
+replica/screens/
+
+# Local dev database of the fake data layer
+web/.data/
