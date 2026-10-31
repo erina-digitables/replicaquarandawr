@@ -8,7 +8,7 @@ test.describe("F07 change the default daily target", () => {
     await expectNoA11yViolations(page);
     await page.getByRole("radio", { name: /^8 qtrs/ }).click();
     await expect(page.getByText("Saved. New days use this goal.")).toBeVisible();
-    expect(userRow(a.username).dailyTarget).toBe(8);
+    expect((await userRow(a.username)).dailyTarget).toBe(8);
     await page.goto("/today");
     await expect(page.getByRole("radiogroup")).toHaveCount(8);
   });
@@ -36,7 +36,8 @@ test.describe("F07 change the default daily target", () => {
     await expect(page.getByText("Saved. New days use this goal.")).toBeVisible();
     await page.goto("/today");
     await expect(page.getByText(/1\s*of 4 quarters read/)).toBeVisible();
-    expect(devDb().logs.find((l) => l.userId === userRow(a.username).id)!.target).toBe(4);
+    const { id } = await userRow(a.username);
+    expect((await devDb()).logs.find((l) => l.userId === id)!.target).toBe(4);
   });
 });
 

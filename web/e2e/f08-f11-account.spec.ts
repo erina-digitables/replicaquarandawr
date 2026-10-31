@@ -10,9 +10,9 @@ async function requestCode(page: Page, identifier: string) {
   await expect(page).toHaveURL(/\/forgot\/code/);
 }
 
-function codeFor(username: string) {
-  const u = userRow(username);
-  return devDb().resets.find((r) => r.userId === u.id)?.code;
+async function codeFor(username: string) {
+  const u = await userRow(username);
+  return (await devDb()).resets.find((r) => r.userId === u.id)?.code;
 }
 
 test.describe("F08 reset password", () => {
@@ -24,7 +24,7 @@ test.describe("F08 reset password", () => {
     // The identifier is kept out of the URL.
     expect(page.url()).not.toContain(a.username);
     await expect(page.getByLabel("Username or email")).toHaveCount(0);
-    const code = codeFor(a.username)!;
+    const code = (await codeFor(a.username))!;
     expect(code).toMatch(/^\d{6}$/);
 
     const wrong = code === "000000" ? "111111" : "000000";
@@ -49,7 +49,7 @@ test.describe("F08 reset password", () => {
     const ctx = await browser.newContext();
     const p2 = await ctx.newPage();
     await requestCode(p2, a.email);
-    await p2.getByLabel("Code").fill(codeFor(a.username)!);
+    await p2.getByLabel("Code").fill((await codeFor(a.username))!);
     await p2.getByLabel("New password", { exact: true }).fill("another-new-pass");
     await p2.getByRole("button", { name: "Set new password" }).click();
     await expect(p2.getByText(/Password changed/)).toBeVisible();
@@ -85,7 +85,7 @@ test.describe("F08 reset password", () => {
     const a = await signUp(page);
     await page.context().clearCookies();
     await requestCode(page, a.username);
-    const code = codeFor(a.username)!;
+    const code = (await codeFor(a.username))!;
     const wrong = code === "000000" ? "111111" : "000000";
     for (let i = 0; i < 5; i++) {
       await page.getByLabel("Code").fill(wrong);
@@ -119,7 +119,8 @@ test.describe("F11 reset all logs / delete account", () => {
     await form.getByLabel("Type RESET to confirm").fill("reset");
     await form.getByRole("button", { name: "Delete all logs" }).click();
     await expect(page.getByText("Type RESET in capitals to confirm.")).toBeVisible();
-    expect(devDb().logs.filter((l) => l.userId === userRow(a.username).id)).toHaveLength(1);
+    const { id } = await userRow(a.username);
+    expect((await devDb()).logs.filter((l) => l.userId === id)).toHaveLength(1);
     await form.getByLabel("Type RESET to confirm").fill("RESET");
     await form.getByRole("button", { name: "Delete all logs" }).click();
     await expect(page.getByText("All revision logs deleted")).toBeVisible();
@@ -130,7 +131,7 @@ test.describe("F11 reset all logs / delete account", () => {
   test("F11-H2 delete account removes the user, their logs and their sessions", async ({ page }) => {
     const a = await signUp(page);
     await rate(page, 1, 1, "Good");
-    const id = userRow(a.username).id;
+    const { id } = await userRow(a.username);
     await page.goto("/settings?tab=account");
     const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Delete my account" }) });
     await form.getByLabel(`Type ${a.username} to confirm`).fill("someone_else");
@@ -139,7 +140,7 @@ test.describe("F11 reset all logs / delete account", () => {
     await form.getByLabel(`Type ${a.username} to confirm`).fill(a.username);
     await form.getByRole("button", { name: "Delete my account" }).click();
     await expect(page).toHaveURL(/\/signup/);
-    const db = devDb();
+    const db = await devDb();
     expect(db.users.some((u) => u.id === id)).toBe(false);
     expect(db.logs.some((l) => l.userId === id)).toBe(false);
     await signIn(page, a.username, a.password);

@@ -2,7 +2,23 @@
 
 Status 2026-10-30: **code complete, not yet run against a real Supabase project.** No Supabase, Resend or Vercel account exists yet. You create those (Claude never signs up for services or handles live keys). Until then the app runs on the file-based dev backend, which uses the same interface.
 
-## How it fits together
+Update 2026-10-31: **you chose your own Vultr server over Supabase.** The app now has a third backend for plain Postgres; the setup and deploy steps are in [vultr.md](vultr.md). The Supabase steps below still work if you ever switch back.
+
+## Your own Postgres (the Vultr route)
+
+| piece | where | notes |
+| --- | --- | --- |
+| Postgres backend | `web/src/lib/data/postgres.ts` | used when `DATABASE_URL` is set; every user query runs in a transaction that sets `app.user_id`, so the same RLS rules decide; connects as `dawr_app`, which does not own the tables |
+| Auth stand-in | `web/db/postgres/20261029000000_auth.sql` | `auth.users`, `auth.uid()`, sessions and one-time codes, so the Supabase migrations run unchanged |
+| Server grants | `web/db/postgres/20261031000000_server_access.sql` | what the service role did on Supabase: username lookup, rate limits, job log, the sample-account purge |
+| Sign-in | `postgres.ts` | scrypt (async), sessions stored as SHA-256 of an httpOnly cookie, reset codes hashed and capped at 5 tries, sign out everywhere on reset, confirmation links valid 48 h |
+| Email | `web/src/lib/email.ts` | Resend HTTP API with the same templates; `DAWR_MAIL_DIR` writes to a folder instead (tests only) |
+| Migrations | `npm run db:migrate` | `supabase/migrations` + `db/postgres` in filename order, each once, as `dawr_owner` |
+| Local Postgres | `npm run db:local` | real Postgres via `embedded-postgres`, same roles as the server |
+| Deploy | `deploy/` | systemd unit, Caddyfile, nightly purge and backup, `update.sh` |
+| Tests | `npm run e2e:postgres` | the whole e2e suite against a throwaway local Postgres |
+
+## How it fits together (Supabase)
 
 | piece | where | notes |
 | --- | --- | --- |

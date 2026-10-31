@@ -16,9 +16,14 @@ export type FormState = {
 /** Who the reset code is for lives in a short-lived http-only cookie, never in the URL. */
 const RESET_COOKIE = "dawr_reset_for";
 
+/**
+ * The visitor's address, for rate limits. Only the last x-forwarded-for entry is
+ * trusted: it is the one our own proxy (Vercel, or Caddy on your server) added.
+ * Earlier entries come from the visitor and can be made up.
+ */
 async function clientIp() {
   const h = await headers();
-  return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "local";
+  return h.get("x-forwarded-for")?.split(",").at(-1)?.trim() || h.get("x-real-ip") || "local";
 }
 
 /**

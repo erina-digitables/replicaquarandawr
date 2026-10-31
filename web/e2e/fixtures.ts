@@ -1,11 +1,13 @@
 // Shared fixture for every spec: fails on console errors and 5xx responses, gives each
 // test its own client IP (so rate limits don't leak between tests), and has helpers
-// for accounts, the axe scan and reading the dev backend's data file.
+// for accounts, the axe scan and reading what the server stored (the dev backend's
+// data file, or the Postgres database and mail outbox under npm run e2e:postgres).
 import AxeBuilder from "@axe-core/playwright";
 import { test as base, expect, type Page } from "@playwright/test";
 import { createHash, randomBytes } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import pg from "pg";
 
 export { expect };
 
@@ -92,18 +94,51 @@ export async function expectNoHorizontalScroll(page: Page) {
 }
 
 type DevDb = {
-  users: { id: string; username: string; email: string; dailyTarget: number }[];
+  users: { id: string; username: string; email: string; dailyTarget: number; isDemo: boolean }[];
   resets: { userId: string; code: string }[];
   logs: { userId: string; date: string; target: number; quarters: { rub: number; quality: string | null }[] }[];
 };
 
-/** The dev backend's data file, as the e2e server writes it. */
-export function devDb(): DevDb {
-  return JSON.parse(readFileSync(join(__dirname, "..", ".data-e2e", "dev-db.json"), "utf8"));
+const onPostgres = process.env.E2E_BACKEND === "postgres";
+
+/** What the e2e server has stored, in the dev backend's shape whichever backend it runs. */
+export async function devDb(): Promise<DevDb> {
+  if (!onPostgres) return JSON.parse(readFileSync(join(__dirname, "..", ".data-e2e", "dev-db.json"), "utf8"));
+  // The owner role sees every row (playwright.postgres.config.ts).
+  const c = new pg.Client({ connectionString: "postgres://dawr_owner:local-owner@127.0.0.1:54330/dawr" });
+  await c.connect();
+  try {
+    const users = (
+      await c.query(`select p.id, p.username::text, coalesce(u.email::text, '') as email, p.daily_target as "dailyTarget", p.is_demo as "isDemo"
+        from profiles p join auth.users u on u.id = p.id`)
+    ).rows;
+    const logs = (
+      await c.query(`select d.user_id as "userId", d.log_date::text as date, d.target_quarters as target,
+          coalesce(json_agg(json_build_object('rub', q.rub, 'quality', q.quality)) filter (where q.rub is not null), '[]') as quarters
+        from daily_logs d left join log_quarters q on q.log_id = d.id group by d.id`)
+    ).rows;
+    return { users, logs, resets: resetsFromOutbox(users) };
+  } finally {
+    await c.end();
+  }
 }
 
-export function userRow(username: string) {
-  const u = devDb().users.find((x) => x.username === username);
+/** Reset codes are stored hashed in Postgres, so read them from the emails the server "sent". */
+function resetsFromOutbox(users: DevDb["users"]): DevDb["resets"] {
+  const dir = join(__dirname, "..", ".mail-e2e");
+  if (!existsSync(dir)) return [];
+  const latest = new Map<string, string>();
+  for (const f of readdirSync(dir).sort()) {
+    const mail = JSON.parse(readFileSync(join(dir, f), "utf8")) as { to: string; subject: string; html: string };
+    const code = /reset/i.test(mail.subject) && mail.html.match(/>(\d{6})</)?.[1];
+    const user = users.find((u) => u.email === mail.to);
+    if (code && user) latest.set(user.id, code);
+  }
+  return [...latest].map(([userId, code]) => ({ userId, code }));
+}
+
+export async function userRow(username: string) {
+  const u = (await devDb()).users.find((x) => x.username === username);
   if (!u) throw new Error(`no user ${username}`);
   return u;
 }

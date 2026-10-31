@@ -187,6 +187,20 @@ export const fakeBackend: Backend = {
     (await cookies()).delete(COOKIE);
   },
 
+  async confirmEmail() {
+    return false; // the dev backend never asks for confirmation
+  },
+
+  async purgeDemo(createdBefore) {
+    const d = db();
+    const gone = new Set(d.users.filter((u) => u.isDemo && new Date(u.createdAt) < createdBefore).map((u) => u.id));
+    d.users = d.users.filter((u) => !gone.has(u.id));
+    d.sessions = d.sessions.filter((s) => !gone.has(s.userId));
+    d.logs = d.logs.filter((l) => !gone.has(l.userId));
+    commit();
+    return { deleted: gone.size, failed: 0 };
+  },
+
   async rateLimit(key, max, windowSeconds) {
     const now = Date.now();
     const a = limits.get(key);

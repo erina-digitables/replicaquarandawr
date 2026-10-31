@@ -61,7 +61,10 @@ test.describe("F04 plan a custom day", () => {
     await expect(page.getByText("Showing your plan only.")).toBeVisible();
     await page.getByRole("link", { name: "Edit plan" }).click();
     await page.getByRole("button", { name: "Clear selection" }).click();
+    // Wait for the save to land: navigating straight away can cancel it in flight.
+    const saved = page.waitForResponse((r) => r.request().method() === "POST" && r.url().includes("/plan"));
     await page.getByRole("button", { name: "Use suggestions" }).click();
+    await saved;
     await page.goto("/today");
     await expect(page.getByText("Showing your plan only.")).toHaveCount(0);
     await expect(page.getByRole("radiogroup")).toHaveCount(4);

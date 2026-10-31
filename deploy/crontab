@@ -1,0 +1,4 @@
+# Install with: crontab ~/app/deploy/crontab   (as the dawr user)
+# Times are the server's clock (UTC on Vultr unless you changed it).
+0 3 * * * $HOME/app/deploy/purge-demo.sh >> $HOME/cron.log 2>&1
+30 3 * * * $HOME/app/deploy/backup.sh >> $HOME/cron.log 2>&1

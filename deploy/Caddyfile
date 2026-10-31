@@ -1,0 +1,15 @@
+# Put your domain on the next line. Caddy gets and renews the HTTPS certificate itself.
+dawr.example.com {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:3000 {
+		# The app trusts the last X-Forwarded-For entry for rate limits, so set it
+		# to the real visitor and drop anything the visitor sent.
+		header_up X-Forwarded-For {remote_host}
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+}

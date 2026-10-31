@@ -1,0 +1,24 @@
+# systemd unit for the app. Install: sudo cp deploy/dawr.service /etc/systemd/system/
+# Logs: journalctl -u dawr -f
+[Unit]
+Description=Dawr web app
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=dawr
+WorkingDirectory=/home/dawr/app/web
+Environment=NODE_ENV=production
+# Listens on localhost only; Caddy is the only thing that talks to it.
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3000
+Restart=on-failure
+RestartSec=5
+# Hardening: no new privileges, read-only system, private /tmp.
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/home/dawr/app/web/.next
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

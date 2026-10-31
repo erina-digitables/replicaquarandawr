@@ -1,6 +1,6 @@
 # Bugs
 
-Found by `/replica-test` on 2026-10-30. Every bug below was reproduced by a failing test first, then fixed, and the test is kept. Summary: **9 found, 7 fixed, 2 open (both S4, cosmetic).** By severity: S1 ×1, S2 ×1, S3 ×4, S4 ×3. No open S1 or S2.
+Found by `/replica-test` on 2026-10-30. Every bug below was reproduced by a failing test first, then fixed, and the test is kept. Summary: **12 found, 9 fixed, 3 open.** By severity: S1 ×2, S2 ×3, S3 ×4, S4 ×3. Open: BUG-010 (S2, partly fixed, re-check on the real server), BUG-008 and BUG-009 (S4). BUG-010 to BUG-012 came from running the suite on Postgres (2026-10-31).
 
 ### BUG-001: Sign-up and the sample account were capped for the whole app, not per visitor
 
@@ -137,9 +137,38 @@ Actual: short days use `accent`, which is the near-white neutral placeholder in 
 Evidence: `replica/test-screens/1440-dark-stats.png` (Wed, Sat).
 Status: open, on purpose: `accent` is a placeholder until replica-brand sets the real colour. Re-check this chart then.
 
+## Found while adding the Postgres backend (2026-10-31)
+
+Not yet committed; the fixes below are in the working tree.
+
+### BUG-011: Username sign-in and reset by username failed on Postgres
+
+- Severity: S1 (core flow blocked on the new backend; never shipped)
+- Flow / case: F02 / F02-H1, F08-H1 under `npm run e2e:postgres`
+- Actual: a 500, `function email_for_username(text) does not exist`. The function takes `citext` and the query passed plain text.
+- Status: fixed (explicit `::citext` cast). 12 tests went from fail to pass.
+
+### BUG-012: A database created in a non-UTF-8 encoding refuses accented names and emoji
+
+- Severity: S2 (on a misconfigured server, sign-up with "Zaynab Al-Ḥasanī 🌙" fails with a 500)
+- Flow / case: F01-E5 under `npm run e2e:postgres`
+- Actual: `character with byte sequence 0xe1 0xb8 0xa4 in encoding "UTF8" has no equivalent in encoding "WIN1252"`. The local test database had picked up Windows' default encoding.
+- Status: fixed three ways: the first migration now refuses to run on a non-UTF-8 database (with the command to fix it), `vultr.md` step 2.4 creates the database with `encoding 'UTF8'`, and the local test database is initialised as UTF-8.
+
+### BUG-010: With a near-instant server reply, a form or rating can stay "saving" forever
+
+- Severity: S2 (the save itself lands; the screen doesn't catch up until a reload. Sign-up can look stuck after the account was created, so a second press says the username is taken)
+- Flow / case: F03-E1/E3/E4/E7 and F01 sign-up, intermittently, under `npm run e2e:postgres` only
+- Steps: on the Postgres backend at localhost speed (replies in ~15 ms), sign up or rate a quarter, repeatedly.
+- Expected: the busy state clears when the reply arrives.
+- Actual: in roughly 1 run in 5 the reply arrives complete (the server action's result is `undefined`, no error), but React keeps the transition open, so anything tied to it (`useOptimistic`, `useActionState`'s pending flag) never clears. Not seen with 100 ms of simulated network latency (24 of 24 passed), and never on the dev backend (99 of 99, and 36 of 36 in a loop).
+- Evidence: per-run request logs; every database transaction that started also finished; the action's promise resolved (`saved 1` logged in the browser); Next's router never consumed the reply.
+- Suspected cause: a race inside Next's client router when an action reply lands very fast. Not found in Next's issue tracker.
+- Status: **partly fixed, still open.** The Today board no longer depends on the transition for its saving indicator (plain state, set before the transition and cleared when the save settles), so ratings recover. Forms using `useActionState` (sign-up, sign-in, reset) can still show it. **Re-check on the real server**, where every reply crosses the network: if it never appears there, downgrade to S4.
+
 ## To check (not reproduced, or not reproducible here)
 
-- **Client IP for rate limits.** `clientIp()` takes the first `x-forwarded-for` value. Vercel sets that header itself, so it can be trusted there; behind any other host or proxy a client could send its own and dodge the per-network limits. Check on the first Vercel preview, and revisit if hosting changes.
+- **Client IP for rate limits.** Changed 2026-10-31: `clientIp()` now takes the *last* `x-forwarded-for` value (the one our own proxy adds), and `deploy/Caddyfile` overwrites the header with the real visitor address. Check on the server that a made-up `X-Forwarded-For` doesn't change which limit bucket you land in.
 - **"failed to get redirect response … ECONNRESET".** Seen in `next start` only while the dev backend's event loop was blocked by the file-lock stress test (now isolated). Not reproduced since. Watch the logs on the first Vercel preview.
 - **Everything that needs live keys** (M1, M2 in `test-plan.md`): email arrival, confirm links, anonymous sign-in, RLS against the real project, the purge cron.
 - **Dev backend hashes passwords synchronously** (scrypt in one process). Fine for one developer; the suite needs generous timeouts because of it. Not a production path.

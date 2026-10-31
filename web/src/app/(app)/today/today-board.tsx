@@ -13,9 +13,19 @@ export function TodayBoard({ date, target, title, eyebrow, items }: { date: stri
     new Map(items.map((i) => [i.rub, i.quality])),
     (state, { rub, quality }: { rub: number; quality: Quality | null }) => new Map(state).set(rub, quality),
   );
-  // Optimistic too: a plain state update inside the transition would only render once
-  // the save had finished, so the card never showed it was saving (BUG-005).
-  const [saving, markSaving] = useOptimistic(new Set<number>(), (state, rub: number) => new Set(state).add(rub));
+  // Saves in flight per quarter. Plain state, set before the transition starts so it
+  // renders at once (BUG-005), and cleared by hand when the save settles. Not
+  // useOptimistic: that only clears once every transition on the page has finished,
+  // and a very fast reply could leave one of the router's open forever (BUG-010).
+  const [saving, setSaving] = useState<Map<number, number>>(new Map());
+  const track = (rub: number, delta: 1 | -1) =>
+    setSaving((m) => {
+      const n = new Map(m);
+      const left = (n.get(rub) ?? 0) + delta;
+      if (left > 0) n.set(rub, left);
+      else n.delete(rub);
+      return n;
+    });
   const [failed, setFailed] = useState<Set<number>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
   const [, start] = useTransition();
@@ -27,9 +37,9 @@ export function TodayBoard({ date, target, title, eyebrow, items }: { date: stri
   }, [toast]);
 
   function rate(rub: number, quality: Quality | null) {
+    track(rub, 1);
     start(async () => {
       apply({ rub, quality });
-      markSaving(rub);
       try {
         await rateQuarter(date, rub, quality);
         setFailed((s) => {
@@ -40,6 +50,8 @@ export function TodayBoard({ date, target, title, eyebrow, items }: { date: stri
       } catch {
         setFailed((s) => new Set(s).add(rub));
         setToast("Couldn't save that rating. Check your connection and tap it again.");
+      } finally {
+        track(rub, -1);
       }
     });
   }

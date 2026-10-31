@@ -8,6 +8,8 @@ Every spec also fails on: any console error, any page error, any 5xx response. E
 
 Result of the last full run: **99 passed, 0 failed** (two runs in a row; crowd tests run alone after the rest).
 
+**Same suite on Postgres** (`npm run e2e:postgres`, 2026-10-31): a throwaway local Postgres with the server's roles, real email replaced by an outbox folder. First run 77 of 99 (BUG-011, BUG-012, a test race in F04-E4, BUG-010). After the fixes: 94 passed, 1 failed (the F04-E4 test race, since fixed in the test). A repeat of F03 + F04-E4 three times: 69 passed, 3 failed, all BUG-010 (sign-up left pending). The dev-backend suite on the same code: 99 of 99.
+
 | case | flow | type | steps | expected | auto | result |
 | --- | --- | --- | --- | --- | --- | --- |
 | F01-H1 | sign up | happy | fill 4 fields, Create account | Today, 4 quarter cards, email in header, no axe issues | e2e | pass |

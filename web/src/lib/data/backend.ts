@@ -12,12 +12,13 @@ export type SignInResult = "ok" | "invalid" | "unconfirmed";
 export type ProfilePatch = Partial<Pick<Profile, "fullName" | "username" | "dailyTarget" | "timezone" | "theme">>;
 
 /**
- * Everything the app needs from storage and auth. Two implementations:
- * fake.ts (file on disk, for development without keys) and supabase.ts.
+ * Everything the app needs from storage and auth. Three implementations:
+ * fake.ts (file on disk, for development without keys), supabase.ts, and
+ * postgres.ts (your own Postgres server).
  * Screens and server actions only ever see this interface.
  */
 export interface Backend {
-  readonly name: "fake" | "supabase";
+  readonly name: "fake" | "supabase" | "postgres";
 
   // auth (the backend owns its session cookies)
   currentUser(): Promise<Profile | null>;
@@ -31,6 +32,10 @@ export interface Backend {
   resetPassword(identifier: string, code: string, newPassword: string): Promise<boolean>;
   changePassword(userId: string, current: string, next: string): Promise<boolean>;
   deleteAccount(userId: string): Promise<void>;
+  /** The link in the sign-up email. true = confirmed and signed in. */
+  confirmEmail(tokenHash: string, type: string): Promise<boolean>;
+  /** The nightly job: deletes sample accounts created before the cutoff. */
+  purgeDemo(createdBefore: Date): Promise<{ deleted: number; failed: number }>;
   /** true = allowed. Counts one hit against key. */
   rateLimit(key: string, max: number, windowSeconds: number): Promise<boolean>;
 

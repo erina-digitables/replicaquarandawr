@@ -4,6 +4,7 @@
 // is used only for username lookup, rate limits, account deletion and seeding.
 import { createHash } from "node:crypto";
 import { adminClient, scratchClient, userClient } from "@/lib/supabase/clients";
+import type { EmailOtpType } from "@supabase/supabase-js";
 import type { ISODate } from "@/lib/dates";
 import type { Backend, ProfilePatch, SignInResult, SignUpResult } from "./backend";
 import { demoDays } from "./fake";
@@ -194,6 +195,44 @@ export const supabaseBackend: Backend = {
     const { error } = await adminClient().auth.admin.deleteUser(userId);
     if (error) throw new Error(`delete account: ${error.message}`);
     await sb.auth.signOut({ scope: "local" });
+  },
+
+  async confirmEmail(tokenHash, type) {
+    if (type !== "email" && type !== "signup") return false;
+    const sb = await userClient();
+    const { error } = await sb.auth.verifyOtp({ token_hash: tokenHash, type: type as EmailOtpType });
+    return !error;
+  },
+
+  async purgeDemo(createdBefore) {
+    // Every run is recorded in job_runs; a failed run stays there with its error.
+    const admin = adminClient();
+    const run = await admin.from("job_runs").insert({ job: "purge-demo" }).select("id").single<{ id: string }>();
+    const runId = run.data?.id;
+    let deleted = 0;
+    const failed: string[] = [];
+    try {
+      const { data, error } = await admin.from("profiles").select("id").eq("is_demo", true).lt("created_at", createdBefore.toISOString()).limit(500);
+      if (error) throw error;
+      for (const { id } of data ?? []) {
+        // Retry each delete once before giving up on it.
+        let res = await admin.auth.admin.deleteUser(id);
+        if (res.error) res = await admin.auth.admin.deleteUser(id);
+        if (res.error) failed.push(id);
+        else deleted++;
+      }
+      await admin
+        .from("job_runs")
+        .update({ finished_at: new Date().toISOString(), ok: failed.length === 0, detail: { deleted, failed } })
+        .eq("id", runId);
+      return { deleted, failed: failed.length };
+    } catch (e) {
+      await admin
+        .from("job_runs")
+        .update({ finished_at: new Date().toISOString(), ok: false, detail: { deleted, error: String(e) } })
+        .eq("id", runId);
+      throw e;
+    }
   },
 
   async rateLimit(key, max, windowSeconds) {

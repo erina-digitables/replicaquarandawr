@@ -32,8 +32,8 @@ test.describe("F03 log today's revision (core loop)", () => {
     await page.getByRole("button", { name: "Clear rating" }).click();
     await expect(progress(page)).toHaveAttribute("aria-valuenow", "0");
     await expect(async () => {
-      const u = userRow(a.username);
-      const log = devDb().logs.find((l) => l.userId === u.id);
+      const u = await userRow(a.username);
+      const log = (await devDb()).logs.find((l) => l.userId === u.id);
       expect(log?.quarters.filter((q) => q.quality) ?? []).toHaveLength(0);
     }).toPass();
   });
@@ -60,7 +60,8 @@ test.describe("F03 log today's revision (core loop)", () => {
     await quarterGroup(page, 1, 2).getByRole("radio", { name: "Good" }).dblclick();
     await expect(progress(page)).toHaveAttribute("aria-valuenow", "1");
     await expect(async () => {
-      const log = devDb().logs.find((l) => l.userId === userRow(a.username).id)!;
+      const { id } = await userRow(a.username);
+      const log = (await devDb()).logs.find((l) => l.userId === id)!;
       expect(log.quarters.filter((q) => q.rub === 2)).toHaveLength(1);
     }).toPass();
   });
@@ -87,7 +88,8 @@ test.describe("F03 log today's revision (core loop)", () => {
       await page.goto(`/today?date=${encodeURIComponent(bad)}`);
       await expect(page.getByRole("main").getByText("Today", { exact: true }), bad).toBeVisible();
     }
-    expect(devDb().logs.filter((l) => l.userId === userRow(a.username).id)).toHaveLength(0);
+    const { id } = await userRow(a.username);
+    expect((await devDb()).logs.filter((l) => l.userId === id)).toHaveLength(0);
   });
 
   test("F03-E7 beyond the goal: a fifth rated quarter counts and says so", async ({ page }) => {

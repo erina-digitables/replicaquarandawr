@@ -21,7 +21,7 @@ test.describe("F01 new user signs up and starts revising", () => {
     await expect(page.getByLabel("Your name")).toHaveAttribute("aria-invalid", "true");
     await expect(page).toHaveURL(/\/signup/);
     // Other workers sign people up in parallel, so look for a blank account, not a count.
-    expect(devDb().users.filter((u) => !u.username || !u.email)).toEqual([]);
+    expect((await devDb()).users.filter((u) => !u.isDemo && (!u.username || !u.email))).toEqual([]);
   });
 
   test("F01-E2 username taken, case-insensitively", async ({ page, browser }) => {
@@ -98,7 +98,7 @@ test.describe("F01 new user signs up and starts revising", () => {
     await page.getByLabel("Password", { exact: true }).fill(a.password);
     await page.getByRole("button", { name: "Create account" }).dblclick();
     await expect(page).toHaveURL(/\/today/);
-    expect(devDb().users.filter((u) => u.username === a.username)).toHaveLength(1);
+    expect((await devDb()).users.filter((u) => u.username === a.username)).toHaveLength(1);
   });
 
   test("F01-E7 sign-up is not capped for everyone: 6 people on 6 networks can join in the same hour @crowd", async ({ browser }) => {
