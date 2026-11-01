@@ -18,7 +18,7 @@ const RESET_COOKIE = "dawr_reset_for";
 
 /**
  * The visitor's address, for rate limits. Only the last x-forwarded-for entry is
- * trusted: it is the one our own proxy (Vercel, or Caddy on your server) added.
+ * trusted: it is the one our own proxy (Vercel, or nginx on your server) added.
  * Earlier entries come from the visitor and can be made up.
  */
 async function clientIp() {

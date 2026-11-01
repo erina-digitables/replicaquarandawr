@@ -168,7 +168,7 @@ Not yet committed; the fixes below are in the working tree.
 
 ## To check (not reproduced, or not reproducible here)
 
-- **Client IP for rate limits.** Changed 2026-10-31: `clientIp()` now takes the *last* `x-forwarded-for` value (the one our own proxy adds), and `deploy/Caddyfile` overwrites the header with the real visitor address. Check on the server that a made-up `X-Forwarded-For` doesn't change which limit bucket you land in.
+- **Client IP for rate limits.** Changed 2026-10-31: `clientIp()` now takes the *last* `x-forwarded-for` value (the one our own proxy adds), and `deploy/nginx-dawr.conf` overwrites the header with the real visitor address. Check on the server that a made-up `X-Forwarded-For` doesn't change which limit bucket you land in.
 - **"failed to get redirect response … ECONNRESET".** Seen in `next start` only while the dev backend's event loop was blocked by the file-lock stress test (now isolated). Not reproduced since. Watch the logs on the first Vercel preview.
 - **Everything that needs live keys** (M1, M2 in `test-plan.md`): email arrival, confirm links, anonymous sign-in, RLS against the real project, the purge cron.
 - **Dev backend hashes passwords synchronously** (scrypt in one process). Fine for one developer; the suite needs generous timeouts because of it. Not a production path.

@@ -10,7 +10,7 @@ Type=simple
 User=dawr
 WorkingDirectory=/home/dawr/app/web
 Environment=NODE_ENV=production
-# Listens on localhost only; Caddy is the only thing that talks to it.
+# Listens on localhost only; nginx is the only thing that talks to it.
 ExecStart=/usr/bin/node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3000
 Restart=on-failure
 RestartSec=5

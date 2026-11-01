@@ -15,7 +15,7 @@ Update 2026-10-31: **you chose your own Vultr server over Supabase.** The app no
 | Email | `web/src/lib/email.ts` | Resend HTTP API with the same templates; `DAWR_MAIL_DIR` writes to a folder instead (tests only) |
 | Migrations | `npm run db:migrate` | `supabase/migrations` + `db/postgres` in filename order, each once, as `dawr_owner` |
 | Local Postgres | `npm run db:local` | real Postgres via `embedded-postgres`, same roles as the server |
-| Deploy | `deploy/` | systemd unit, Caddyfile, nightly purge and backup, `update.sh` |
+| Deploy | `deploy/` | systemd unit, nginx site, nightly purge and backup, `update.sh` |
 | Tests | `npm run e2e:postgres` | the whole e2e suite against a throwaway local Postgres |
 
 ## How it fits together (Supabase)
